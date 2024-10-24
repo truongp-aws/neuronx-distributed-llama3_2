@@ -1,5 +1,5 @@
 import torch
-from llama2.neuron_modeling_llama import (
+from llama3.neuron_modeling_llama import (
     NeuronLlamaConfig,
     NeuronLlamaForCausalLM,
     NeuronLlamaModel,
@@ -68,7 +68,7 @@ class LlamaRunner(InferenceRunner):
         config = NeuronLlamaConfig.from_pretrained(traced_model_path)
         model = NeuronLlamaForCausalLM.from_pretrained("", config)
         self.config = config
-
+        print("generation config: ", config.generation_config)
         model.load(traced_model_path)
         if config.torch_dtype == torch.bfloat16:
             model.bfloat16()
@@ -97,6 +97,7 @@ class LlamaRunner(InferenceRunner):
     def get_default_hf_generation_config_kwargs(self):
         config = super().get_default_hf_generation_config_kwargs()
         # set to eos_token_id as that's done in load_tokenizer
+        print(f'original eos token : {self.generation_config.eos_token_id}')
         config['pad_token_id'] = self.generation_config.eos_token_id
 
         return config
